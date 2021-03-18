@@ -2,3 +2,4 @@
 graalvm-ce-java11-21.0.0.2/
 *.zip
 *.class
+spring-native/

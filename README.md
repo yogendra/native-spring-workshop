@@ -1,8 +1,14 @@
 ## Spring Native Workshop
 
 
-- [Spring Native is Beta](https://spring.io/blog/2021/03/11/announcing-spring-native-beta)
-- Slide Deck - TBA
+-   [Spring Native is Beta](https://spring.io/blog/2021/03/11/announcing-spring-native-beta)
+-   [Slide Deck](spring-native.pdf)
+    <object data="spring-native.pdf" type="application/pdf" width="700px" height="700px">
+        <embed src="spring-native.pdf">
+            <p>This browser does not support PDFs. Please download the PDF to view it: <a href="spring-native.pdf">Download PDF</a>.</p>
+        </embed>
+    </object>
+
 
 ## Prerequisites
 

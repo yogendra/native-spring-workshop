@@ -1,10 +1,27 @@
-## Spring Native
+## Spring Native Workshop
 
+
+- [Spring Native is Beta](https://spring.io/blog/2021/03/11/announcing-spring-native-beta)
+- Slide Deck - TBA
 
 ## Prerequisites
 
+-   Linux or Windows environment 
+    -   Native Images creation are not supported on Mac OS yet
+    -   You can use Docker contianers on Mac, if you know what you are doing 
+        ```
+        docker container run  --name graalvm-workspace --rm -it -v $PWD:/app yogendra/graalvm-workspace:latest
+        ```
+        -   There is no git on this image, you can use curl to download the repo as an archive instead
 
-- [GraalVM](https://github.com/graalvm/graalvm-ce-builds)
+            ```
+            curl -L https://github.com/yogendra/spring-native-workshop/archive/main.tar.gz -o spring-native-workshop.tgz
+            tar -xzvf spring-native-workshop.tar.gz
+            mv spring-native-workshop-main spring-native-workshop
+            cd spring-native-workshop
+            ```
+
+-   [GraalVM](https://github.com/graalvm/graalvm-ce-builds)
     ```
     > java -version
     openjdk version "11.0.10" 2021-01-19
@@ -25,10 +42,9 @@
     ```
 -   Clone this repository
     ```
-    git clone http://github.com/yogendra/native-spring-workshop.git native-spring-workshop
+    git clone http://github.com/yogendra/spring-native-workshop.git spring-native-workshop
     ```
-
-
+-   Apache Maven 3.x
 
 ## GraalVM Examples
 
@@ -233,4 +249,272 @@ make demo
 
 ## Spring Native
 
-[Source: ]
+[Source: Spring Native Beta Announcement](https://spring.io/blog/2021/03/11/announcing-spring-native-beta)
+[Source: Spring Natice Introduction](https://www.youtube.com/watch?v=96n_YpGx-JU)
+
+-   Create a simple project using spring initializer. Use any one of the options below
+
+    -   Use the project in this repo `examples/springnative`
+        -   Go to project directory
+                ```
+                cd examples/springnative
+                ```
+    -   Prepopulated GUI 
+        -   Click [here][spring-native-sample-1] to bring up pre-populated form.
+        -   Client **Generate** to download the zipped project code. 
+        -   Save the extract archive `springnative.zip` into the `examples` directory
+        -   Go to project directory
+            ```
+            cd examples/springnative
+            ```
+    -   Use the GUI and generate the project
+        -   Go to [Spring Initializr](https://start.spring.io)
+        -   Fill the form as per below screen shot
+
+            ![](images/spring-initializr.png)
+
+            -   Project: **Maven**
+            -   Spring Boot: **2.4.3**
+            -   Project Metadata
+                -   Group: **me.yogendra.examples**
+                -   Artifact: **springnative**
+                -   Name: **springnative**
+                -   Description: **Demo for Spring Native**
+                -   Package name: **me.yogendra.examples.springnative**
+                -   Packaging: **Jar**
+                -   Java: **11**
+            - Dependencies:
+                -   **Spring Native [Experimental] (Developer Tools)**
+        -   Client **Generate** to download the zipped project code. 
+        -   Save the extract archive `springnative.zip` into the `examples` directory
+        -   Go to project directory
+            ```
+            cd examples/springnative
+            ```
+    -   Command Line (My Favorite)
+        -   Create a project directory
+            ```
+            mkdir -p examples/springnative
+            ```
+
+        -   Go to project directory
+            ```
+            cd examples/springnative
+            ```
+        -   In the `examples/springnative` directory, execute following command to download the preconfigured project as a zip file
+
+            ```
+            curl https://start.spring.io/starter.zip \
+                -d type=maven-project \
+                -d language=java \
+                -d platformVersion=2.4.3.RELEASE \
+                -d packaging=jar \
+                -d jvmVersion=11 \
+                -d groupId=me.yogendra.examples \
+                -d artifactId=springnative \
+                -d name=springnative \
+                -d description=Demo%20for%20Spring%20Native \
+                -d packageName=me.yogendra.examples.springnative \
+                -d dependencies=native \
+                -o springnative.zip
+            ```
+        -   Unzip the `springnative.zip`
+            ```
+            unzip springnative.zip
+            ```
+
+-   Lets look at the `spring-boot:help` target in Maven
+    ```
+    ./mvnw spring-boot:help
+    ```
+    **Output:**
+    ```
+    [INFO] Scanning for projects...
+    [INFO] 
+    [INFO] -----------------< me.yogendra.examples:springnative >------------------
+    [INFO] Building springnative 0.0.1-SNAPSHOT
+    [INFO] --------------------------------[ jar ]---------------------------------
+    [INFO] 
+    [INFO] --- spring-boot-maven-plugin:2.4.3:help (default-cli) @ springnative ---
+    [INFO] Spring Boot Maven Plugin 2.4.3
+    
+
+    This plugin has 7 goals:
+
+    spring-boot:build-image
+    Package an application into a OCI image using a buildpack.
+
+    spring-boot:build-info
+    Generate a build-info.properties file based the content of the current
+    MavenProject.
+
+    spring-boot:help
+    Display help information on spring-boot-maven-plugin.
+    Call mvn spring-boot:help -Ddetail=true -Dgoal=<goal-name> to display
+    parameter details.
+
+    spring-boot:repackage
+    Repackage existing JAR and WAR archives so that they can be executed from the
+    command line using java -jar. With layout=NONE can also be used simply to
+    package a JAR with nested dependencies (and no main class, so not executable).
+
+    spring-boot:run
+    Run an application in place.
+
+    spring-boot:start
+    Start a spring application. Contrary to the run goal, this does not block and
+    allows other goals to operate on the application. This goal is typically used
+    in integration test scenario where the application is started before a test
+    suite and stopped after.
+
+    spring-boot:stop
+    Stop an application that has been started by the 'start' goal. Typically
+    invoked once a test suite has completed.
+
+
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time:  1.428 s
+    [INFO] Finished at: 2021-03-18T18:07:48+08:00
+    [INFO] ------------------------------------------------------------------------
+    ```
+    Build the project and run it.
+
+    ```
+    ./mvnw clean install
+    ```
+-   So you can see the `spring-boot:build-image`. This builds a docker image with native binary. Lest use that
+    ```
+    ./mvnw spring-boot:build-image
+    ```
+    **Output:**
+    ```
+    ...
+    [INFO] Successfully built image 'docker.io/library/springnative:0.0.1-SNAPSHOT'
+    [INFO] 
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time:  46.317 s
+    [INFO] Finished at: 2021-03-18T18:26:41+08:00
+    [INFO] ------------------------------------------------------------------------
+    ```
+
+-   Examine the image
+    ```
+    dive docker.io/library/springnative:0.0.1-SNAPSHOT
+    ```
+-   Run image
+
+    ```
+    docker run --rm  --name springnative-test docker.io/library/springnative:0.0.1-SNAPSHOT
+    ```
+
+
+## Spring Native Samples
+
+If you are on Mac, create a Linux VM (preferrably Ubuntu) and use that to run and examine sample. Mac OS native binary generation does not work yet. And remember your target environment will be linux in a container so it just makes sense to compile in a Linux environment as such.
+
+
+-   Checkout Spring Native repository
+
+    ```
+    git clone https://github.com/spring-projects-experimental/spring-native.git
+    ```
+-   Change to the directory
+    ```
+    cd spring-native
+    ```
+### Pet Clinic JPA
+
+-   Change to Petclinic App
+
+    ```
+    cd samples/petclinic-jpa
+    ```
+
+-   Lets run one of them - Pet Clinic
+    ```
+    cd samples/petclinic-jpa
+    ```
+
+-   Build it!
+
+    
+
+
+For detailed instructions follow [documentation](https://docs.spring.io/spring-native/docs/current/reference/htmlsingle/).
+
+### Use Docker Machine to create your machine
+
+I am using Docker machine to create a Linux VM.
+
+- Create a docker machine VM
+
+    ```
+    docker-machine create  
+        --driver amazonec2   \
+        --amazonec2-zone "a"  \
+        --amazonec2-region ap-southeast-1 \
+        --amazonec2-open-port 8080  \
+        --amazonec2-open-port 8443  \
+        --amazonec2-open-port 80  \
+        --amazonec2-open-port 443  \
+        --amazonec2-instance-type "t3.2xlarge"   \
+        --amazonec2-root-size 100 \        
+        spring-native
+    ```
+-   SSH to the machine
+    ```
+    docker-machine ssh spring-native
+    ```
+-   Add user to docker group
+    ```
+    sudo usermod -aG docker $USER
+    ```
+-   Install docker-compose
+
+    ```
+    sudo apt-get install docker-compose
+    ```
+
+-   Install graalvm and maven
+    ```
+    curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.0.0.2/graalvm-ce-java11-linux-amd64-21.0.0.2.tar.gz -o graalvm.tgz
+    tar -xzvf graalvm.tgz
+    mv graalvm-ce-java11-21.0.0.2 $HOME/graalvm
+    $HOME/graalvm/bin/gu install native-image
+    curl -L https://apachemirror.sg.wuchna.com/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -o maven.tgz
+    tar -xzvf maven.tgz
+    mv apache-maven-3.6.3 maven
+    echo export PATH=\$HOME/graalvm/bin:\$HOME/maven/bin:\$PATH >> ~/.bashrc
+    echo export JAVA_HOME=\$HOME/graalvm >> ~/.bashrc
+    export PATH=$HOME/graalvm/bin:$HOME/maven/bin:$PATH
+    export JAVA_HOME=$HOME/graalvm
+    ```
+-   Reboot the machine to pickup user group changes
+    ```
+    sudo reboot
+    ```
+-   Verify GraalVM Setup
+    ```
+    java -version
+    ```
+-   Verify docker setup
+    ```
+    docker ps
+    ```
+
+## TODO
+
+1.  Workspace enhacenment
+    1.  Add a browser based gui
+    1.  Add git
+1.  Enhance sample organization
+
+
+[spring-native-sample-1]: https://start.spring.io/#!type=maven-project&language=java&platformVersion=2.4.3.RELEASE&packaging=jar&jvmVersion=11&groupId=me.yogendra.examples&artifactId=springnative&name=springnative&description=Demo%20for%20Spring%20Native&packageName=me.yogendra.examples.springnative&dependencies=native
+
+
+
